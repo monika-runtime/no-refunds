@@ -1,0 +1,51 @@
+# NoRefunds
+#
+# Targets LIBRARIAN trades only - the enchanted BOOK trades that power
+# villager trading halls. Armorer / weaponsmith / toolsmith gear trades are
+# never touched.
+
+# How to handle non-Mending enchanted book trades:
+#   price  -> force the trade to cost `enchanted-book-price` emeralds
+#   remove -> the trade never appears on the villager at all
+mode: price
+
+# Price forced onto non-Mending enchanted book trades.
+# 64 is a full stack of emeralds - expensive enough that grinding every
+# enchant through villagers is no longer worth it.
+enchanted-book-price: 64
+
+# MENDING books are never removed, but they are also never allowed to be
+# trivially cheap (a 1-emerald Mending book is what makes trading halls
+# overpowered). If a Mending book is cheaper than this floor, its price is
+# set to floor + a random 1-8. Books already above the floor are untouched.
+mending-min-price: 14
+
+# Remove the price discount that comes from Hero of the Village and from
+# curing zombie villagers (plus the general reputation discount). Applied to
+# every enchanted book trade.
+nullify-discounts: true
+
+# --- Enchant-level rebalance (non-Mending books) ---
+#
+# Enables re-rolling the ENCHANTMENT LEVEL of non-Mending book trades toward
+# lower tiers, so high-tier books (Sharpness V, Efficiency V, ...) stop being
+# the common output of trading halls. The max level still has a small chance
+# to appear. Book price then scales down the further the rolled level sits
+# below the enchant's max.
+enchant-level-roll: true
+
+# Chance (0-1) that the re-roll lands on the enchant's MAX level instead of a
+# lower tier. 0.05 = 5% of books keep their top-tier enchant.
+max-tier-chance: 0.05
+
+# Power bias toward the bottom tiers. Weight for level L is
+# (maxLevel - L)^level-bias, so higher values make floor-level books far more
+# common and cap-level books rarer. 0 = uniform across non-max tiers, 1 =
+# linear, 2 = strong.
+level-bias: 2.0
+
+# How many emeralds get shaved off `enchanted-book-price` for EACH level the
+# rolled enchant sits below its max. Level-price = book-price - (max - L)*step,
+# floored at 1. With book-price 64, step 6, an Efficiency V (max 5) is 64, but
+# a re-rolled Efficiency I is 64 - 4*6 = 40.
+level-price-step: 6

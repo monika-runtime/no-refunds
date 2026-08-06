@@ -1,0 +1,11 @@
+name: NoRefunds
+version: '${version}'
+main: dev.maf.norefunds.NoRefunds
+api-version: '26.1'
+authors: [Monika]
+description: >
+  Kills villager trading-hall enchant farming. Non-Mending enchanted-book
+  trades are re-rolled toward low enchant tiers (max tier stays rare) and
+  priced relative to their level, with all hero-of-the-village and zombie-
+  curing discounts nullified. The Mending book trade is never removed, just
+  floor-priced so it stays obtainable without being a 1-emerald handout.

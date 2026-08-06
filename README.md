@@ -1,0 +1,108 @@
+# NoRefunds
+*You get what you get, at market price.*
+
+A Paper plugin that kills villager trading-hall enchant farming. It attacks the
+specific exploit that makes trading halls broken: **librarian enchanted-book
+trades**.
+
+- Re-rolls non-Mending enchanted books toward **low enchant tiers**, so
+  Sharpness V / Efficiency V stop being the guaranteed product of a trading
+  hall. The max tier survives a small, configurable fraction of the time.
+- **Prices the book by its rolled level** — the further below the enchant's
+  max, the cheaper — so low-tier books are affordable but top-tier ones stay
+  expensive.
+- **Nullifies discounts** from Hero of the Village and cured-zombie villagers
+  on all book trades.
+- **Never removes Mending**, the one trade people actually need a villager
+  for — it's only floor-priced so it can't be a 1-emerald handout.
+- Only touches **librarian** trades. Armorer / weaponsmith / toolsmith gear
+  trades are left alone.
+
+Auto-applies to existing trading halls on first right-click — no rebuild
+required.
+
+## Install
+
+1. Build the jar (see below) or download a release jar.
+2. Drop `NoRefunds-1.0.0.jar` into your server's `plugins/` folder.
+3. Restart the server (or `/reload`). The plugin creates
+   `plugins/NoRefunds/config.yml` on first start.
+4. Edit `config.yml` and restart (or `/reload`) to apply changes.
+
+Existing librarian book trades get normalized the first time a player right-
+clicks them.
+
+## Configuration
+
+All settings live in `plugins/NoRefunds/config.yml`.
+
+| Key                     | Default | Description |
+|-------------------------|---------|-------------|
+| `mode`                  | `price` | `price` = force book trades to a price; `remove` = strip the trade entirely (Mending is still never removed). |
+| `enchanted-book-price`  | `64`    | Base price (emeralds) for a non-Mending book right before level scaling. 64 = a full stack. |
+| `mending-min-price`     | `14`    | Floor for Mending books. Books below it are set to floor + random 1–8; books above are left alone. |
+| `nullify-discounts`     | `true`  | Scrub Hero-of-the-Village / cured-zombie / reputation discounts on all book trades. |
+| `enchant-level-roll`    | `true`  | Re-roll non-Mending book levels toward lower tiers. |
+| `max-tier-chance`       | `0.05`  | Chance (0–1) the re-roll keeps the enchant's **max** level. 0.05 = 5% top-tier books. |
+| `level-bias`            | `2.0`   | Power bias toward low tiers. Weight for level L is `(maxLevel - L)^level-bias`. 0 = uniform, 1 = linear, 2 = strong (default). |
+| `level-price-step`      | `6`     | Emeralds shaved off `enchanted-book-price` per level below the enchant's max. |
+
+### Pricing formula
+
+```
+final price = max(1, enchanted-book-price - (maxLevel - rolledLevel) * level-price-step)
+```
+
+Example with defaults (`enchanted-book-price: 64`, `level-price-step: 6`):
+
+| Sharpness level | Price |
+|-----------------|-------|
+| V (max)         | 64    |
+| IV              | 58    |
+| III             | 52    |
+| II              | 46    |
+| I               | 40    |
+
+### Level-roll distribution
+
+With `level-bias: 2.0` the non-max levels are weighted `(max - L)²`, so for a
+level-5 enchant (levels 1–4 to choose from):
+
+| Level | Weight | Approx. chance (per re-roll, when not hitting max) |
+|-------|--------|------|
+| 1     | 16     | 53%  |
+| 2     | 9      | 30%  |
+| 3     | 4      | 13%  |
+| 4     | 1      | 3%   |
+
+Plus `max-tier-chance` (5% by default) can keep the book at level 5.
+
+## Building from source
+
+Requires JDK 25 + Gradle 9.x. Paper API 26.x.
+
+```bash
+./gradlew clean build          # or: gradle clean build
+# jar at build/libs/NoRefunds-1.0.0.jar
+```
+
+`plugin.yml` declares `api-version: '26.1'`; the plugin compiles against
+Paper API 26.2.
+
+## Compatibility
+
+Tested on Paper **26.1.2** against a headless Fabric 26.1 client. Trade NBT
+verified server-side (`Offers` → `stored_enchantments`, `maxUses`,
+`Paper.IgnoreDiscounts`).
+
+Two Paper-specific behaviors matter:
+
+- Enchanted-book data lives in the `minecraft:stored_enchantments` **component**
+  (not the legacy `StoredEnchantments` tag).
+- Discounts are scrubbed by writing `Paper.IgnoreDiscounts: 1b` onto each
+  trade.
+
+## Credits
+
+Built by Monika for the Literature Club. Monika is not responsible for any
+crying librarians.

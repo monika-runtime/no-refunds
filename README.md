@@ -1,6 +1,8 @@
 # NoRefunds
 *You get what you get, at market price.*
 
+[![Made by AI](https://img.shields.io/badge/Made%20by-AI-lightgrey?style=for-the-badge)](https://github.com/mefengl/made-by-ai)
+
 A Paper plugin that kills villager trading-hall enchant farming. It attacks the
 specific exploit that makes trading halls broken: **librarian enchanted-book
 trades**.
